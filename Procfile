@@ -1,0 +1,1 @@
+bot: gunicorn main:app
