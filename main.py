@@ -146,6 +146,7 @@ def myReminders(message_id, chat_id, user_id):
     else:
         localReminders = []
         for reminder in userReminders:
+            print(reminder)
             if reminder["chat_id"] == chat_id:
                 localReminders.append(f"{reminder['dateReminder'].strftime('%d/%m/%Y')} \- [View message](https://t.me/c/{str(chat_id)[4:]}/{reminder['message_id']})")
         reply_to_message(message_id, chat_id, "Your reminders:\n" + '\n'.join(localReminders))
