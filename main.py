@@ -139,7 +139,7 @@ def createReminder(message_id, chat_id, user_id, date):
             return False
 
 def myReminders(message_id, chat_id, user_id):
-    userReminders = reminders.find_all({"user_id": user_id})
+    userReminders = reminders.find({"user_id": user_id})
 
     if not userReminders:
         reply_to_message(message_id, chat_id, "No reminders")
