@@ -28,7 +28,7 @@ def constantCheck(user_id):
                 if reminder["dateReminder"] <= datetime.datetime.now():
                     reply_to_message(reminder["message_id"], reminder["chat_id"], "Reminder: " + reminder["dateReminder"].strftime('%d/%m/%Y'))
                     reminders.delete_one({"UUID": reminder["UUID"]})
-                    time.sleep(5)
+                    time.sleep(10)
                     #reminders[user_id].remove(reminder)
         else:
             break
