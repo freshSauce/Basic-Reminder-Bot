@@ -156,5 +156,6 @@ def reply_to_message(message_id, chat_id, text, parse_mode = 'MarkdownV2'):
     return True
 
 
-
+if __name__ == "__main__":
+    app.run()
 
