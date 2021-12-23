@@ -139,14 +139,13 @@ def createReminder(message_id, chat_id, user_id, date):
             return False
 
 def myReminders(message_id, chat_id, user_id):
-    userReminders = reminders.find({"user_id": user_id})
+    userReminders = list(reminders.find({"user_id": user_id}))
 
-    if len(list(userReminders)) == 0:
+    if len(userReminders) == 0:
         reply_to_message(message_id, chat_id, "No reminders")
     else:
         localReminders = []
         for reminder in userReminders:
-            print(reminder)
             if reminder["chat_id"] == chat_id:
                 localReminders.append(f"{reminder['dateReminder'].strftime('%d/%m/%Y')} \- [View message](https://t.me/c/{str(chat_id)[4:]}/{reminder['message_id']})")
         reply_to_message(message_id, chat_id, "Your reminders:\n" + '\n'.join(localReminders))
