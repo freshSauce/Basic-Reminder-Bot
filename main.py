@@ -141,7 +141,7 @@ def createReminder(message_id, chat_id, user_id, date):
 def myReminders(message_id, chat_id, user_id):
     userReminders = reminders.find({"user_id": user_id})
 
-    if len(userReminders) == 0:
+    if len(list(userReminders)) == 0:
         reply_to_message(message_id, chat_id, "No reminders")
     else:
         localReminders = []
