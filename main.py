@@ -59,6 +59,8 @@ def receive_info():
         except IndexError:
             reply_to_message(data['message']['message_id'], data['message']['chat']['id'], "Missing arguments")
             return Response('Ok', 200)
+        except KeyError:
+            return Response('Ok', 200)
 
         match command:
             
