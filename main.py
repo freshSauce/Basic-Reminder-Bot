@@ -139,15 +139,14 @@ def createReminder(message_id, chat_id, user_id, date):
             return False
 
 def myReminders(message_id, chat_id, user_id):
-    userReminders = list(reminders.find({"user_id": user_id}))
+    userReminders = list(reminders.find({"user_id": user_id, "chat_id": chat_id}))
 
-    if len(userReminders) == 0:
+    if len(userReminders):
         reply_to_message(message_id, chat_id, "No reminders")
     else:
         localReminders = []
         for reminder in userReminders:
-            if reminder["chat_id"] == chat_id:
-                localReminders.append(f"{reminder['dateReminder'].strftime('%d/%m/%Y')} \- [View message](https://t.me/c/{str(chat_id)[4:]}/{reminder['message_id']})")
+            localReminders.append(f"{reminder['dateReminder'].strftime('%d/%m/%Y')} \- [View message](https://t.me/c/{str(chat_id)[4:]}/{reminder['message_id']})")
         reply_to_message(message_id, chat_id, "Your reminders:\n" + '\n'.join(localReminders))
 
 def reply_to_message(message_id, chat_id, text, parse_mode = 'MarkdownV2'):
@@ -159,5 +158,17 @@ def reply_to_message(message_id, chat_id, text, parse_mode = 'MarkdownV2'):
 
 
 if __name__ == "__main__":
+    users  = []
+    allReminders = reminders.find()
+    for reminder in allReminders:
+        if reminder['user_id'] not in users:
+            users.append(reminder['user_id'])
+            p = threading.Thread(
+                        target=constantCheck,
+                        args=(reminder['user_id'],),
+                        daemon=True
+                        )
+            p.start()
+    del users
     app.run()
 
