@@ -7,19 +7,15 @@ import time
 import threading
 import re
 from flask_pymongo import PyMongo
-from collections import defaultdict
 app = Flask(__name__)
 
 app.config[
     "MONGO_URI"
-] = f"mongodb+srv://freshSauce:{os.environ['DB_PASSWORD']}@reminders.bthpa.mongodb.net/reminders?retryWrites=true&w=majority"
-
-#reminders = defaultdict(list)
+] = os.environ['DB_URI']
 
 database = PyMongo(app)
 
 reminders = database.db.reminders
-
 
 def constantCheck(user_id):
     while True:
@@ -29,15 +25,11 @@ def constantCheck(user_id):
                     reply_to_message(reminder["message_id"], reminder["chat_id"], "Reminder: " + reminder["dateReminder"].strftime('%d/%m/%Y'))
                     reminders.delete_one({"UUID": reminder["UUID"]})
                 time.sleep(10)
-                    #reminders[user_id].remove(reminder)
         else:
             break
-        
 
 API_URL = f"https://api.telegram.org/bot{os.environ['API_KEY']}"
 regex = r"(?<=en)(\s[\d]{1,2}\saños|\s[\d]{1,2}\saño)|(\s[\d]{1,2}\smeses|\s[\d]{1,2}\smes)|(\s[\d]{1,2}\sdías|\s[\d]{1,2}\sdía)|(\s[\d]{1,2}\shoras|\s[\d]{1,2}\shora)|(\s[\d]{1,2}\sminutos|\s[\d]{1,2}\sminuto)"
-
-
 
 @app.route('/')
 def index():
@@ -50,7 +42,7 @@ def receive_info():
         
         try:
             message = data['message']
-            #print(message['text'])
+
         except KeyError:
             return Response('OK', status = 200)
         
@@ -82,8 +74,6 @@ def receive_info():
             case _:
                 pass
 
-
-
         return Response('Ok', 200)
     else:
         return Response('Method not allowed', 405)
@@ -96,7 +86,7 @@ def createReminder(message_id, chat_id, user_id, date):
         timeList = [time for itemList in re.findall(regex, date) for time in itemList if time]
         for time in timeList:
             time = [time for time in time.replace('í', 'i').split(' ') if time]
-            #print(time)
+
             if any(isThere in time for isThere in ('año', 'años')):
                 timedelta += datetime.timedelta(days = 365 * int(time[0]))
             elif any(isThere in time for isThere in ('mes', 'meses')):
@@ -118,12 +108,6 @@ def createReminder(message_id, chat_id, user_id, date):
             "user_id": user_id,
             "dateReminder": datetime.datetime.now() + timedelta
         })
-        """ reminders[user_id].append(
-                                    {"message_id": message_id, 
-                                    "chat_id": chat_id, 
-                                    "dateInitiated": datetime.datetime.now(), 
-                                    "dateReminder": datetime.datetime.now() + timedelta}
-                                    ) """
 
         reply_to_message(message_id, chat_id, "Reminder created")
         if reminders.find({"user_id": user_id}):
@@ -156,8 +140,7 @@ def reply_to_message(message_id, chat_id, text, parse_mode = 'MarkdownV2'):
         return False
     return True
 
-
-if __name__ == "__main__":
+def reinitializeThreads():
     users  = []
     allReminders = reminders.find()
     for reminder in allReminders:
@@ -170,5 +153,12 @@ if __name__ == "__main__":
                         )
             p.start()
     del users
+
+if __name__ == "__main__":
+    p = threading.Thread(
+                        target=reinitializeThreads,
+                        daemon=True
+                        )
+    p.start()
     app.run()
 
