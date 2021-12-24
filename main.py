@@ -153,6 +153,7 @@ def reinitializeThreads():
                         )
             p.start()
     del users
+    return True
 
 if __name__ == "__main__":
     p = threading.Thread(
