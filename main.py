@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, Response
 import requests as r
 import datetime
 import os
@@ -6,7 +6,15 @@ import uuid
 import time
 import threading
 import re
+import sys
 from flask_pymongo import PyMongo
+
+if os.environ.get("DB_URI"):
+    sys.exit("Couldn't find DB_URI environment variable")
+
+if os.environ.get("API_KEY"):
+    sys.exit("Couldn't find API_KEY environment variable")
+
 app = Flask(__name__)
 
 app.config[
@@ -30,10 +38,6 @@ def constantCheck(user_id):
 
 API_URL = f"https://api.telegram.org/bot{os.environ['API_KEY']}"
 regex = r"(?<=en)(\s[\d]{1,2}\saños|\s[\d]{1,2}\saño)|(\s[\d]{1,2}\smeses|\s[\d]{1,2}\smes)|(\s[\d]{1,2}\sdías|\s[\d]{1,2}\sdía)|(\s[\d]{1,2}\shoras|\s[\d]{1,2}\shora)|(\s[\d]{1,2}\sminutos|\s[\d]{1,2}\sminuto)"
-
-@app.route('/')
-def index():
-    return os.environ['API_KEY']
 
 @app.route('/receive_info', methods = ['POST', 'GET'])
 def receive_info():
@@ -119,8 +123,8 @@ def createReminder(message_id, chat_id, user_id, date):
             p.start()
         return True
     else:
-            reply_to_message(message_id, chat_id, "Reminder couldn't be created\. Reason: No time specified")
-            return False
+        reply_to_message(message_id, chat_id, "Reminder couldn't be created\. Reason: No time specified")
+        return False
 
 def myReminders(message_id, chat_id, user_id):
     userReminders = list(reminders.find({"user_id": user_id, "chat_id": chat_id}))
@@ -141,6 +145,7 @@ def reply_to_message(message_id, chat_id, text, parse_mode = 'MarkdownV2'):
     return True
 
 def reinitializeThreads():
+    print("Reinitializing threads")
     users  = []
     allReminders = reminders.find()
     for reminder in allReminders:
