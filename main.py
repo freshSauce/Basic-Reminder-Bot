@@ -9,10 +9,10 @@ import re
 import sys
 from flask_pymongo import PyMongo
 
-if os.environ.get("DB_URI"):
+if not os.environ.get("DB_URI"):
     sys.exit("Couldn't find DB_URI environment variable")
 
-if os.environ.get("API_KEY"):
+if not os.environ.get("API_KEY"):
     sys.exit("Couldn't find API_KEY environment variable")
 
 app = Flask(__name__)
