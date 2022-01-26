@@ -1,6 +1,7 @@
 from flask import Flask, request, Response
 import requests as r
 import datetime
+import logging
 import os
 import uuid
 import time
@@ -10,10 +11,12 @@ import sys
 from flask_pymongo import PyMongo
 
 if not os.environ.get("DB_URI"):
-    sys.exit("Couldn't find DB_URI environment variable")
+    logging.error("Couldn't find DB_URI environment variable")
+    sys.exit(1)
 
 if not os.environ.get("API_KEY"):
-    sys.exit("Couldn't find API_KEY environment variable")
+    logging.error("Couldn't find API_KEY environment variable")
+    sys.exit(1)
 
 app = Flask(__name__)
 
@@ -140,12 +143,12 @@ def myReminders(message_id, chat_id, user_id):
 def reply_to_message(message_id, chat_id, text, parse_mode = 'MarkdownV2'):
     result = r.post(f"{API_URL}/sendMessage", data = {"chat_id": chat_id, "text": text, "reply_to_message_id": message_id, "parse_mode": parse_mode})
     if result.status_code != 200:
-        print(result.json())
+        logging.warning(f"The next error has occured: {result.json()}")
         return False
     return True
 
 def reinitializeThreads():
-    print("Reinitializing threads")
+    logging.info("Reinitializing threads")
     users  = []
     allReminders = reminders.find()
     for reminder in allReminders:
@@ -158,7 +161,7 @@ def reinitializeThreads():
                         daemon=True
                         )
             p.start()
-            print(f"Thread for user {reminder['user_id']} initialized")
+            logging.info(f"Thread for user {reminder['user_id']} initialized")
     del users
     return True
 
