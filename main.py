@@ -150,6 +150,7 @@ def reinitializeThreads():
     allReminders = reminders.find()
     for reminder in allReminders:
         if reminder['user_id'] not in users:
+
             users.append(reminder['user_id'])
             p = threading.Thread(
                         target=constantCheck,
@@ -157,14 +158,16 @@ def reinitializeThreads():
                         daemon=True
                         )
             p.start()
+            print(f"Thread for user {reminder['user_id']} initialized")
     del users
     return True
 
-if __name__ == "__main__":
-    p = threading.Thread(
+p = threading.Thread(
                         target=reinitializeThreads,
                         daemon=True
                         )
-    p.start()
+p.start()
+
+if __name__ == "__main__":
     app.run()
 
