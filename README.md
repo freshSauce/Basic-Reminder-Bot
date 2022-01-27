@@ -197,6 +197,6 @@ Project Link: [https://github.com/freshSauce/Basic-Reminder-Bot](https://github.
 [issues-shield]: https://img.shields.io/github/issues/freshSauce/Basic-Reminder-Bot.svg?style=for-the-badge
 [issues-url]: https://github.com/freshSauce/Basic-Reminder-Bot/issues
 [license-shield]: https://img.shields.io/github/license/freshSauce/Basic-Reminder-Bot.svg?style=for-the-badge
-[license-url]: https://github.com/freshSauce/Basic-Reminder-Bot/blob/master/LICENSE.txt
+[license-url]: https://github.com/freshSauce/Basic-Reminder-Bot/blob/master/LICENSE
 [telegram-shield]: https://img.shields.io/badge/-@freshSauce-black?style=for-the-badge&logo=telegram&colorB=0af
 [telegram-url]: https://t.me/freshSauce
