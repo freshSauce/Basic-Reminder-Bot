@@ -40,7 +40,11 @@ def constantCheck(user_id):
             break
 
 API_URL = f"https://api.telegram.org/bot{os.environ['API_KEY']}"
-regex = r"(?<=en)(\s[\d]{1,2}\saños|\s[\d]{1,2}\saño)|(\s[\d]{1,2}\smeses|\s[\d]{1,2}\smes)|(\s[\d]{1,2}\sdías|\s[\d]{1,2}\sdía)|(\s[\d]{1,2}\shoras|\s[\d]{1,2}\shora)|(\s[\d]{1,2}\sminutos|\s[\d]{1,2}\sminuto)"
+
+if os.environ.get("lang") == "es":
+    regex = r"(?<=en)(\s[\d]{1,2}\saños|\s[\d]{1,2}\saño)|(\s[\d]{1,2}\smeses|\s[\d]{1,2}\smes)|(\s[\d]{1,2}\sdías|\s[\d]{1,2}\sdía)|(\s[\d]{1,2}\shoras|\s[\d]{1,2}\shora)|(\s[\d]{1,2}\sminutos|\s[\d]{1,2}\sminuto)"
+else:
+    regex = r"(?<=in)(\s[\d]{1,2}\syears|\s[\d]{1,2}\syear)|(\s[\d]{1,2}\smonths|\s[\d]{1,2}\smonth)|(\s[\d]{1,2}\sdays|\s[\d]{1,2}\sday)|(\s[\d]{1,2}\shours|\s[\d]{1,2}\shour)|(\s[\d]{1,2}\sminutes|\s[\d]{1,2}\sminute)"
 
 @app.route('/receive_info', methods = ['POST', 'GET'])
 def receive_info():
@@ -94,15 +98,15 @@ def createReminder(message_id, chat_id, user_id, date):
         for time in timeList:
             time = [time for time in time.replace('í', 'i').split(' ') if time]
 
-            if any(isThere in time for isThere in ('año', 'años')):
+            if any(isThere in time for isThere in ('año', 'años', 'year', 'years')):
                 timedelta += datetime.timedelta(days = 365 * int(time[0]))
-            elif any(isThere in time for isThere in ('mes', 'meses')):
+            elif any(isThere in time for isThere in ('mes', 'meses', 'month', 'months')):
                 timedelta += datetime.timedelta(days = 30 * int(time[0]))
-            elif any(isThere in time for isThere in ('dia', 'dias')):
+            elif any(isThere in time for isThere in ('dia', 'dias' ,'day', 'days')):
                 timedelta += datetime.timedelta(days = int(time[0]))
-            elif any(isThere in time for isThere in ('hora', 'horas')):
+            elif any(isThere in time for isThere in ('hora', 'horas', 'hour', 'hours')):
                 timedelta += datetime.timedelta(hours = int(time[0]))
-            elif any(isThere in time for isThere in ('minuto', 'minutos')):
+            elif any(isThere in time for isThere in ('minuto', 'minutos', 'minute', 'minutes')):
                 timedelta += datetime.timedelta(minutes = int(time[0]))
             else:
                 reply_to_message(message_id, chat_id, "Reminder couldn't be created\. Reason: No time specified")
@@ -148,9 +152,12 @@ def reply_to_message(message_id, chat_id, text, parse_mode = 'MarkdownV2'):
     return True
 
 def reinitializeThreads():
-    logging.info("Reinitializing threads")
     users  = []
     allReminders = reminders.find()
+    if allReminders:
+        logging.info("Reinitializing threads")
+    else:
+        return False
     for reminder in allReminders:
         if reminder['user_id'] not in users:
 
